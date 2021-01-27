@@ -1,0 +1,67 @@
+<!--===============FORMULARIO DATOS===============-->
+<main>
+    <section class="banner">
+        <div class="banner-text-item">
+            <div class="banner-heading">
+                <h1>Introduce tus datos</h1>
+            </div>
+            <form class="form">
+                <div class="group">
+                    <input type="text" name="nombre" class="nombre" minlength="5" maxlength="40" required />
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label>Nombre</label>
+                </div>
+
+                <div class="group">
+                    <input type="text" name="apellidos" class="apellidos" required/>
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label>Apellidos</label>
+                </div>
+
+                <div class="group">
+                    <input type="email" name="email" class="email" required/>
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label>Email</label>
+                </div>
+
+                <div class="group">
+                    <input type="tel" name="telefono" class="telefono" required>
+                    <span class="highlight"></span>
+                    <span class="bar"></span>
+                    <label>Teléfono</label>
+                </div>  
+            </form>
+            <a href="http://localhost:3003/citas/confirmar"><input type="button" class="botones" value="Enviar"
+                    id="datos" /></a> 
+        </div>
+    </section>
+</main>
+
+
+
+<script>
+
+//PASO DATOS AL LOCALSTORAGE    
+
+    let botonDatos = document.querySelector("#datos")
+    let emailUsuario = document.querySelector(".email")
+    let telUsuario = document.querySelector(".telefono")
+    let nombreUsuario = document.querySelector(".nombre")
+    let apellidoUsuario = document.querySelector(".apellidos")
+      
+
+    botonDatos.onclick = () => {
+        let reservaDatos = {
+            fecha: JSON.parse(localStorage.getItem("cita")).fecha,
+            hora: JSON.parse(localStorage.getItem("cita")).hora,
+            nombre: nombreUsuario.value,
+            apellidos: apellidoUsuario.value,
+            email: emailUsuario.value,
+            telefono: telUsuario.value
+        }
+        localStorage.setItem("cita", JSON.stringify(reservaDatos))
+    } 
+</script>

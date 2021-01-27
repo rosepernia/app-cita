@@ -1,0 +1,140 @@
+<section class="banner" id="primerBloque">
+  <div class="banner-text-item">
+    <div class="banner-heading">
+      <h1>Introduce el identificador de tu cita</h1>
+    </div>
+
+    <div class="group">
+      <form>
+        <input type="text" name="id" class="id" required>
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>Clave cita</label>
+
+        Recuerda que te enviamos la clave de tu cita por email
+
+        <button id="boton" type="button" class="botonEditar">Siguiente</button>
+      </form>
+    </div>
+  </div>
+  </div>
+</section>
+
+<div class="ocultar" id="segundoBloque">
+  <section class="about" {{!-- id="segundoBloque" --}}>
+    <div class="about-text">
+      <ul class="list">
+        <h3><b>Vas a cambiar la fecha y la hora de la siguiente cita:</b></h3><br>
+        <h4 class="nombre">Nombre: </h4>
+        <h4 class="email">email: </h4>
+        <h4 class="telefono">teléfono: </h4>
+        <h4 class="dia">Día: </h4>
+        <h4 class="hora">Hora: </h4>
+      </ul>
+    </div>
+    <div class="col-6 d-flex justify-content-center align-items-center inicio">
+      <form class="form" method="post" action="/citas/cambiar">
+
+        <input type="text" name="id" id="idRecuperado" class="ocultar">
+        <input type="date" id="basicDate" class="date" name="fecha" placeholder="Nueva fecha" value="" required />
+        <div class="showHours part1">
+        </div>
+        <div class="hidden {{!-- slot --}}">
+          <input id="hora" type="time" name="hora" class="hidden-hour">
+        </div>
+        <button class="cambiar" id="boton" type="submit">Guardar cambios</button>
+
+      </form>
+  </section>
+</div>
+
+<!--===============FLATPICKR CALENDARIO (idioma español y desabilitados domingos)================-->
+<script src="/js/script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.2.3/flatpickr.js"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+
+
+<script>
+  const fp = $("#basicDate").flatpickr({
+    enableTime: false,
+    altInput: true,
+    altFormat: 'd M Y',
+    dateFormat: 'Y-m-d',
+    minDate: "today",
+    "locale": "es",
+    inline: true,
+    "disable": [
+      function (date) {
+        //return true to disable
+        return (date.getDay() === 0 || date.getDay() === 7)
+      }
+    ]
+  })
+
+
+  //ENVÍO FECHA AL SERVIDOR PARA QUE ME DEVUELVA LAS HORAS DISPONIBLES
+
+  fp.config.onChange.push(() => {
+    let dayConsult = fp.selectedDates[0]
+    let dayNumber = Date.parse(dayConsult)
+    console.log(dayNumber)
+    fetch('/citas/consultarHours', {
+      method: 'POST',
+      body: JSON.stringify({ dayConsult: dayNumber }),
+      headers: { 'Content-type': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(hours => {
+        document.querySelector('.showHours').innerHTML = ''
+        let hoursWorkday = []
+        for (let i = 0; i < hours.hours.length; i++) {
+          hoursWorkday.push(hours.hours[i])
+        }
+        let workday = document.createElement('div')
+        hoursWorkday.forEach(e => {
+          let clon = workday.cloneNode(true)
+          clon.className = `hours-free`
+          clon.id = `${e}`
+          clon.textContent = e
+          document.querySelector('.showHours').appendChild(clon)
+        })
+      })
+  })
+
+  //RECOJO LA HORA SELECCIONADA
+  document.querySelector('.showHours').onclick = (e) => {
+    document.getElementById(`${e.target.id}`).className = `hour-free select`
+    let hour = e.target.id
+    document.querySelector('input[name="hora"]').value = hour
+    console.log(document.querySelector('input[name="hora"]').value)
+  }
+
+  //RECUPERO DATOS ID FORMULARIO, LOS ENVÍO SERVIDOR, LOS IMPRIMO PANTALLA 
+  let id = document.querySelector(".id")
+
+  document.querySelector(".botonEditar").onclick = () => {
+    fetch('/citas/procesar',
+      {
+        method: 'POST',
+        body: JSON.stringify({ id: id.value }),
+        headers: { 'Content-type': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data.cita.nombre)
+        document.querySelector(".nombre").innerHTML += data.cita.nombre
+        document.querySelector(".email").innerHTML += data.cita.email
+        document.querySelector(".telefono").innerHTML += data.cita.telefono
+        document.querySelector(".dia").innerHTML += data.cita.fecha
+        document.querySelector(".hora").innerHTML += data.cita.hora
+
+        document.querySelector("#idRecuperado").value = data.cita.id
+
+
+        document.querySelector("#primerBloque").classList.add("ocultar") 
+        document.querySelector("#segundoBloque").classList.remove("ocultar")   
+      })
+  }
+
+</script>

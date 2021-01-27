@@ -1,0 +1,60 @@
+<main>
+  <section class="about">
+    <div class="col-12 d-flex justify-content-center align-items-center inicio">
+      <h2><b>Comprueba los datos y confirma tu cita: </b></h2>
+    </div>
+    <div class="about-text form" id="confirmar">
+      <div class="list">
+        <h3 class="dia">Día: </h3>
+        <h3 class="hora">Hora: </h3>
+        <h3 class="nombre">Nombre: </h3>
+        <h3 class="apellidos">Apellidos: </h3>
+        <h3 class="email">email: </h3>
+        <h3 class="telef">Teléfono: </h3>
+        <input class="botones" type="button" value="Confirmar cita" id="confirmar" />
+      </div>
+    </div>
+  </section>
+</main>
+<div class="modal modal-hidden">
+  <div class="modal-container">
+    <div class="modal-body">
+      <h4>Datos del contacto</h4>
+      <form id="frmcontacto">
+        <p><span>Nombre: </span><input type="text" name="txtname"></p>
+      </form>
+      <button class="btn btn-danger" name="cancelar">Cancelar</button>
+      <button class="btn btn-primary" name="guardar">Guardar</button>
+    </div>
+  </div>
+</div>
+<script>
+
+  document.querySelector("#confirmar").onclick = () => {
+
+    fetch('/citas/datosCita',
+      {
+        method: 'POST',
+        body: localStorage.getItem("cita"),
+        headers: { 'Content-type': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => alert("Gracias, " + data.cita.nombre + " .Tu reserva ha sido confirmada. Te hemos enviado un email con toda la información.", data))
+
+  }
+
+
+
+  document.querySelector("body").onload = () => {
+
+    let cita = JSON.parse(localStorage.getItem("cita"))
+    document.querySelector(".dia").innerHTML += cita.fecha
+    document.querySelector(".hora").innerHTML += cita.hora
+    document.querySelector(".nombre").innerHTML += cita.nombre
+    document.querySelector(".apellidos").innerHTML += cita.apellidos
+    document.querySelector(".email").innerHTML += cita.email
+    document.querySelector(".telef").innerHTML += cita.telefono
+  }
+
+
+</script>
